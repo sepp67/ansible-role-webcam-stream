@@ -1,0 +1,8 @@
+---
+- name: Local test deployment for webcam-stream
+  hosts: localhost
+  connection: local
+  become: true
+
+  roles:
+    - role: ../../
