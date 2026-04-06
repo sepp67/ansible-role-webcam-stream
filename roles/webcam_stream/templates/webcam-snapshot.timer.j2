@@ -1,0 +1,10 @@
+[Unit]
+Description=Run webcam snapshot check every {{ webcam_snapshot_check_interval_minutes }} minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec={{ webcam_snapshot_check_interval_minutes }}min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

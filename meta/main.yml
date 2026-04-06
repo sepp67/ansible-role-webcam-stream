@@ -1,0 +1,17 @@
+---
+galaxy_info:
+  role_name: webcam_stream
+  author: sepp67
+  description: Webcam streaming and snapshot gallery project
+  license: GPL-3.0-only
+  min_ansible_version: "2.14"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+dependencies: []

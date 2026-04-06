@@ -1,0 +1,141 @@
+---
+- name: Install required packages
+  ansible.builtin.apt:
+    name: "{{ webcam_required_packages }}"
+    state: present
+    update_cache: true
+
+- name: Create base directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ webcam_system_user }}"
+    group: "{{ webcam_system_group }}"
+    mode: "0755"
+  loop:
+    - "{{ webcam_web_root }}"
+    - "{{ webcam_stream_dir }}"
+    - "{{ webcam_gallery_dir }}"
+    - "{{ webcam_script_dir }}"
+    - "{{ webcam_log_dir }}"
+
+- name: Create python virtualenv for snapshot tooling
+  ansible.builtin.command:
+    cmd: python3 -m venv {{ webcam_script_dir }}/venv
+    creates: "{{ webcam_script_dir }}/venv/bin/python3"
+
+- name: Install astral in virtualenv
+  ansible.builtin.pip:
+    name: astral
+    virtualenv: "{{ webcam_script_dir }}/venv"
+    state: present
+
+- name: Deploy live stream index page
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: "{{ webcam_web_root }}/index.html"
+    owner: "{{ webcam_system_user }}"
+    group: "{{ webcam_system_group }}"
+    mode: "0644"
+  notify: restart nginx
+
+- name: Deploy initial gallery page
+  ansible.builtin.template:
+    src: gallery.html.j2
+    dest: "{{ webcam_gallery_dir }}/index.html"
+    owner: "{{ webcam_system_user }}"
+    group: "{{ webcam_system_group }}"
+    mode: "0644"
+  notify: restart nginx
+
+- name: Deploy gallery build script
+  ansible.builtin.template:
+    src: webcam-gallery.sh.j2
+    dest: "{{ webcam_script_dir }}/webcam-gallery.sh"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Deploy snapshot runner
+  ansible.builtin.template:
+    src: webcam-snapshot-runner.py.j2
+    dest: "{{ webcam_script_dir }}/webcam-snapshot-runner.py"
+    owner: root
+    group: root
+    mode: "0755"
+  when: webcam_enable_snapshots | bool
+
+- name: Deploy nginx vhost
+  ansible.builtin.template:
+    src: nginx-webcam.conf.j2
+    dest: /etc/nginx/sites-available/webcam.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart nginx
+
+- name: Enable nginx vhost
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/webcam.conf
+    dest: /etc/nginx/sites-enabled/webcam.conf
+    state: link
+  notify: restart nginx
+
+- name: Disable default nginx vhost
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: restart nginx
+
+- name: Deploy reolink stream service
+  ansible.builtin.template:
+    src: reolink-stream.service.j2
+    dest: /etc/systemd/system/reolink-stream.service
+    owner: root
+    group: root
+    mode: "0644"
+  when: webcam_enable_live_stream | bool
+  notify:
+    - reload systemd
+    - restart webcam stream
+
+- name: Enable and start reolink stream service
+  ansible.builtin.systemd:
+    name: reolink-stream.service
+    enabled: true
+    state: started
+  when: webcam_enable_live_stream | bool
+
+- name: Deploy webcam snapshot service
+  ansible.builtin.template:
+    src: webcam-snapshot.service.j2
+    dest: /etc/systemd/system/webcam-snapshot.service
+    owner: root
+    group: root
+    mode: "0644"
+  when: webcam_enable_snapshots | bool
+  notify: reload systemd
+
+- name: Deploy webcam snapshot timer
+  ansible.builtin.template:
+    src: webcam-snapshot.timer.j2
+    dest: /etc/systemd/system/webcam-snapshot.timer
+    owner: root
+    group: root
+    mode: "0644"
+  when: webcam_enable_snapshots | bool
+  notify:
+    - reload systemd
+    - restart webcam snapshot timer
+
+- name: Enable and start webcam snapshot timer
+  ansible.builtin.systemd:
+    name: webcam-snapshot.timer
+    enabled: true
+    state: started
+  when: webcam_enable_snapshots | bool
+
+- name: Build gallery once immediately
+  ansible.builtin.command:
+    cmd: "{{ webcam_script_dir }}/webcam-gallery.sh"
+  changed_when: false

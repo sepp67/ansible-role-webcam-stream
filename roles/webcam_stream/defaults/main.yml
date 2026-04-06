@@ -1,0 +1,38 @@
+---
+webcam_domain: ""
+webcam_server_name: "_"
+
+webcam_rtsp_url: "rtsp://user:password@192.168.8.101:554/Preview_01_main"
+
+webcam_web_root: /var/www/webcam
+webcam_stream_dir: "{{ webcam_web_root }}/stream"
+webcam_gallery_dir: "{{ webcam_web_root }}/gallery"
+webcam_script_dir: /opt/webcam
+webcam_log_dir: /var/log/webcam
+
+webcam_hls_segment_time: 2
+webcam_hls_list_size: 5
+
+webcam_system_user: www-data
+webcam_system_group: www-data
+
+webcam_http_port: 80
+
+webcam_title: "Live Camera Feed"
+webcam_heading: "Live Camera Feed"
+webcam_show_gallery_link: true
+
+webcam_latitude: 48.4636
+webcam_longitude: 7.4811
+webcam_timezone: "Europe/Paris"
+
+webcam_snapshot_width: 1920
+webcam_snapshot_height: 1080
+webcam_snapshot_quality: 2
+webcam_snapshot_retention_days: 31
+
+webcam_snapshot_check_interval_minutes: 15
+webcam_snapshot_window_minutes: 10
+
+webcam_enable_live_stream: true
+webcam_enable_snapshots: true

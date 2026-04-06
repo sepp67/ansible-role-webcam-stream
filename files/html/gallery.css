@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #eee;
+  margin: 0;
+  padding: 2rem;
+}
+a {
+  color: #8ed0ff;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+}
+.card {
+  background: #1b1b1b;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0.75rem;
+}
+img {
+  width: 100%;
+  display: block;
+  border-radius: 6px;
+}
+.meta {
+  margin-top: 0.5rem;
+  color: #ccc;
+  font-size: 0.9rem;
+}

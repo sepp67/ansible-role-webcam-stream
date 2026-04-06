@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Webcam Snapshots</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      margin: 0;
+      padding: 2rem;
+    }
+    a { color: #7cc7ff; }
+    .topbar {
+      margin-bottom: 2rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: #1b1b1b;
+      border-radius: 8px;
+      overflow: hidden;
+      padding: 0.75rem;
+    }
+    img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+    }
+    .meta {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>Webcam Snapshots</h1>
+    <p><a href="/">Back to live stream</a></p>
+    <p>Gallery will be updated automatically after the first snapshots are created.</p>
+  </div>
+  <div class="grid"></div>
+</body>
+</html>

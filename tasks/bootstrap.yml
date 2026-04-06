@@ -1,0 +1,9 @@
+---
+- name: Ensure project directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - /opt/webcam-stream
+    - /opt/webcam-stream/env

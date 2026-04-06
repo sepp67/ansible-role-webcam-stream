@@ -1,0 +1,27 @@
+[Unit]
+Description=Reolink HLS Stream
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ webcam_system_user }}
+Group={{ webcam_system_group }}
+ExecStartPre=/usr/bin/mkdir -p {{ webcam_stream_dir }}
+ExecStartPre=/usr/bin/chown {{ webcam_system_user }}:{{ webcam_system_group }} {{ webcam_stream_dir }}
+ExecStart=/usr/bin/ffmpeg \
+  -rtsp_transport tcp \
+  -i {{ webcam_rtsp_url | quote }} \
+  -c:v copy \
+  -c:a aac \
+  -f hls \
+  -hls_time {{ webcam_hls_segment_time }} \
+  -hls_list_size {{ webcam_hls_list_size }} \
+  -hls_flags delete_segments+append_list \
+  -strftime 0 \
+  {{ webcam_stream_dir }}/index.m3u8
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

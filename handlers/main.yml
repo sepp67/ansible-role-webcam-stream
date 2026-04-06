@@ -1,0 +1,4 @@
+---
+- name: Restart webcam container
+  ansible.builtin.debug:
+    msg: "Container restart is handled by Docker / project infra."

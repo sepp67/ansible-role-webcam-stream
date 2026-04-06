@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import os
+import subprocess
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+from astral import LocationInfo
+from astral.sun import sun
+
+LAT = float("{{ webcam_latitude }}")
+LON = float("{{ webcam_longitude }}")
+TZ = "{{ webcam_timezone }}"
+RTSP_URL = {{ webcam_rtsp_url | to_json }}
+GALLERY_DIR = "{{ webcam_gallery_dir }}"
+SCRIPT_DIR = "{{ webcam_script_dir }}"
+RETENTION_DAYS = int("{{ webcam_snapshot_retention_days }}")
+WINDOW_MINUTES = int("{{ webcam_snapshot_window_minutes }}")
+WIDTH = int("{{ webcam_snapshot_width }}")
+HEIGHT = int("{{ webcam_snapshot_height }}")
+QUALITY = int("{{ webcam_snapshot_quality }}")
+
+
+def ensure_dirs() -> None:
+    os.makedirs(GALLERY_DIR, exist_ok=True)
+
+
+def sun_times(now: datetime) -> dict:
+    city = LocationInfo(name="webcam", region="local", timezone=TZ, latitude=LAT, longitude=LON)
+    return sun(city.observer, date=now.date(), tzinfo=ZoneInfo(TZ))
+
+
+def within_window(now: datetime, target: datetime) -> bool:
+    delta = abs((now - target).total_seconds())
+    return delta <= WINDOW_MINUTES * 60
+
+
+def snapshot_exists(date_str: str, event: str) -> bool:
+    for name in os.listdir(GALLERY_DIR):
+        if name.startswith(f"{date_str}_{event}_") and name.endswith(".jpg"):
+            return True
+    return False
+
+
+def take_snapshot(event: str, now: datetime) -> None:
+    filename = now.strftime(f"%Y-%m-%d_{event}_%H-%M-%S.jpg")
+    output = os.path.join(GALLERY_DIR, filename)
+
+    cmd = [
+        "/usr/bin/ffmpeg",
+        "-y",
+        "-rtsp_transport", "tcp",
+        "-i", RTSP_URL,
+        "-frames:v", "1",
+        "-q:v", str(QUALITY),
+        "-vf", f"scale={WIDTH}:{HEIGHT}",
+        output,
+    ]
+    subprocess.run(cmd, check=True)
+
+    subprocess.run([os.path.join(SCRIPT_DIR, "webcam-gallery.sh")], check=True)
+
+
+def cleanup_old_files(now: datetime) -> None:
+    cutoff = now - timedelta(days=RETENTION_DAYS)
+    for name in os.listdir(GALLERY_DIR):
+        if not name.endswith(".jpg"):
+            continue
+        path = os.path.join(GALLERY_DIR, name)
+        mtime = datetime.fromtimestamp(os.path.getmtime(path), tz=ZoneInfo(TZ))
+        if mtime < cutoff:
+            os.remove(path)
+
+
+def main() -> None:
+    ensure_dirs()
+
+    now = datetime.now(ZoneInfo(TZ))
+    s = sun_times(now)
+
+    sunrise = s["sunrise"]
+    sunset = s["sunset"]
+    date_str = now.strftime("%Y-%m-%d")
+
+    cleanup_old_files(now)
+
+    if within_window(now, sunrise) and not snapshot_exists(date_str, "sunrise"):
+        take_snapshot("sunrise", now)
+
+    if within_window(now, sunset) and not snapshot_exists(date_str, "sunset"):
+        take_snapshot("sunset", now)
+
+    subprocess.run([os.path.join(SCRIPT_DIR, "webcam-gallery.sh")], check=True)
+
+
+if __name__ == "__main__":
+    main()

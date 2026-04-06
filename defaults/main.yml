@@ -1,0 +1,21 @@
+---
+webcam_project_name: webcam-stream
+
+webcam_rtsp_url: "rtsp://user:password@192.168.8.100:554/h264Preview_01_main"
+webcam_stream_path: /var/www/html/stream
+webcam_gallery_path: /var/www/html/gallery
+webcam_snapshot_retention_days: 31
+
+webcam_latitude: 48.4636
+webcam_longitude: 7.4811
+webcam_timezone: Europe/Paris
+
+webcam_snapshot_width: 1920
+webcam_snapshot_height: 1080
+webcam_snapshot_quality: 2
+webcam_snapshot_window_minutes: 10
+
+webcam_hls_time: 2
+webcam_hls_list_size: 6
+
+webcam_http_port: 80

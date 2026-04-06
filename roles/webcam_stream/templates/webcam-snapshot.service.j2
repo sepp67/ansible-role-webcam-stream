@@ -1,0 +1,10 @@
+[Unit]
+Description=Webcam sunrise/sunset snapshot runner
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart={{ webcam_script_dir }}/venv/bin/python3 {{ webcam_script_dir }}/webcam-snapshot-runner.py

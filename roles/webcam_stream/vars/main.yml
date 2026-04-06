@@ -1,0 +1,6 @@
+---
+webcam_required_packages:
+  - ffmpeg
+  - nginx
+  - python3
+  - python3-venv

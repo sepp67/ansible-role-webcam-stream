@@ -1,0 +1,29 @@
+server {
+    listen {{ webcam_http_port }};
+    server_name {{ webcam_server_name }};
+
+    root {{ webcam_web_root }};
+    index index.html;
+
+    access_log /var/log/nginx/webcam_access.log;
+    error_log /var/log/nginx/webcam_error.log;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /stream/ {
+        types {
+            application/vnd.apple.mpegurl m3u8;
+            video/mp2t ts;
+        }
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Access-Control-Allow-Origin "*";
+        try_files $uri $uri/ =404;
+    }
+
+    location /gallery/ {
+        autoindex off;
+        try_files $uri $uri/ /gallery/index.html;
+    }
+}

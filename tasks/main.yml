@@ -1,0 +1,6 @@
+---
+- name: Include bootstrap tasks
+  ansible.builtin.include_tasks: bootstrap.yml
+
+- name: Include standalone tasks
+  ansible.builtin.include_tasks: standalone.yml

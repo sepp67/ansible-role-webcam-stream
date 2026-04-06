@@ -1,0 +1,21 @@
+---
+- name: restart nginx
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+
+- name: reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: restart webcam stream
+  ansible.builtin.systemd:
+    name: reolink-stream.service
+    state: restarted
+  when: webcam_enable_live_stream | bool
+
+- name: restart webcam snapshot timer
+  ansible.builtin.systemd:
+    name: webcam-snapshot.timer
+    state: restarted
+  when: webcam_enable_snapshots | bool

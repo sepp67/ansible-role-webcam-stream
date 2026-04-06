@@ -1,0 +1,6 @@
+---
+- name: Render project environment file
+  ansible.builtin.template:
+    src: project.env.j2
+    dest: /opt/webcam-stream/env/webcam-stream.env
+    mode: "0600"
