@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
 : "${RTSP_URL:?RTSP_URL is required}"
 
@@ -13,6 +14,7 @@ EOF
 
 chmod 0644 /etc/cron.d/webcam-snapshots
 crontab /etc/cron.d/webcam-snapshots
+
 service cron start
 
 ffmpeg \
@@ -26,4 +28,10 @@ ffmpeg \
   -hls_flags delete_segments+append_list+omit_endlist \
   -hls_delete_threshold 1 \
   /var/www/html/stream/index.m3u8 >/var/log/ffmpeg-hls.log 2>&1 &
-  
+
+sleep 2
+cat /var/log/ffmpeg-hls.log || true
+
+nginx -t
+
+exec nginx -g "daemon off;"
