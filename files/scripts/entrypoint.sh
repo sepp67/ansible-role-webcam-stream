@@ -21,10 +21,10 @@ ffmpeg \
   -rtsp_transport tcp \
   -i "${RTSP_URL}" \
   -c:v copy \
-  -an \
+  -c:a aac \
   -f hls \
-  -hls_time "${HLS_TIME:-4}" \
-  -hls_list_size "${HLS_LIST_SIZE:-6}" \
+  -hls_time "${HLS_TIME:-2}" \
+  -hls_list_size "${HLS_LIST_SIZE:-5}" \
   -hls_flags delete_segments+append_list+omit_endlist \
   -hls_delete_threshold 1 \
   /var/www/html/stream/index.m3u8 >/var/log/ffmpeg-hls.log 2>&1 &
