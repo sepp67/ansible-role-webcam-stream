@@ -1,7 +1,7 @@
 ---
 webcam_project_name: webcam-stream
 
-webcam_rtsp_url: "rtsp://user:password@192.168.8.100:554/h264Preview_01_main"
+webcam_rtsp_url: "rtsp://user:password@192.168.8.100:554/h264Preview_01_sub"
 webcam_stream_path: /var/www/html/stream
 webcam_gallery_path: /var/www/html/gallery
 webcam_snapshot_retention_days: 31
