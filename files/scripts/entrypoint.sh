@@ -20,21 +20,29 @@ run_ffmpeg_once() {
   rm -f /var/www/html/stream/*.ts /var/www/html/stream/*.m3u8 || true
 
   ffmpeg \
-    -hide_banner \
-    -loglevel info \
-    -rtsp_transport tcp \
-    -fflags +genpts+discardcorrupt+nobuffer \
-    -flags low_delay \
-    -use_wallclock_as_timestamps 1 \
-    -i "${RTSP_URL}" \
-    -an \
-    -c:v copy \
-    -f hls \
-    -hls_time "${HLS_TIME:-2}" \
-    -hls_list_size "${HLS_LIST_SIZE:-5}" \
-    -hls_flags delete_segments+append_list+omit_endlist+independent_segments \
-    -hls_delete_threshold 1 \
-    /var/www/html/stream/index.m3u8 >> /var/log/ffmpeg-hls.log 2>&1 &
+  -hide_banner \
+  -loglevel info \
+  -rtsp_transport tcp \
+  -fflags +genpts+discardcorrupt+nobuffer \
+  -flags low_delay \
+  -use_wallclock_as_timestamps 1 \
+  -i "${RTSP_URL}" \
+  -an \
+  -vf "fps=10,scale=1280:-2" \
+  -c:v libx264 \
+  -preset veryfast \
+  -tune zerolatency \
+  -pix_fmt yuv420p \
+  -g 20 \
+  -keyint_min 20 \
+  -sc_threshold 0 \
+  -force_key_frames "expr:gte(t,n_forced*2)" \
+  -f hls \
+  -hls_time 2 \
+  -hls_list_size 4 \
+  -hls_flags delete_segments+append_list+omit_endlist+independent_segments \
+  -hls_delete_threshold 1 \
+  /var/www/html/stream/index.m3u8
   FFMPEG_PID=$!
 }
 
