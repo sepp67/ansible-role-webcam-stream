@@ -2,7 +2,7 @@
 webcam_domain: ""
 webcam_server_name: "_"
 
-webcam_rtsp_url: "rtsp://user:password@192.168.8.101:554/Preview_01_main"
+webcam_rtsp_url: "rtsp://user:password@192.168.8.100:554/Preview_01_main"
 
 webcam_web_root: /var/www/webcam
 webcam_stream_dir: "{{ webcam_web_root }}/stream"
